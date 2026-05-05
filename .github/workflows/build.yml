@@ -52,7 +52,6 @@ jobs:
             --hidden-import "PIL" `
             --hidden-import "PIL.Image" `
             --hidden-import "PIL.ImageTk" `
-            --exclude-module "matplotlib" `
             --exclude-module "scipy" `
             --exclude-module "pandas" `
             app.py
@@ -105,7 +104,6 @@ jobs:
             --hidden-import "PIL" \
             --hidden-import "PIL.Image" \
             --hidden-import "PIL.ImageTk" \
-            --exclude-module "matplotlib" \
             --exclude-module "scipy" \
             --exclude-module "pandas" \
             app.py
@@ -179,7 +177,6 @@ jobs:
             --hidden-import "PIL" \
             --hidden-import "PIL.Image" \
             --hidden-import "PIL.ImageTk" \
-            --exclude-module "matplotlib" \
             --exclude-module "scipy" \
             --exclude-module "pandas" \
             app.py
