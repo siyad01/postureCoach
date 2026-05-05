@@ -96,8 +96,8 @@ Posture Analyzer (2D pixel geometry)
 ## Build from source
 
 ```bash
-git clone https://github.com/siyad01/posturecoach
-cd posturecoach
+git clone https://github.com/siyad01/postureCoach
+cd postureCoach
 python -m venv venv
 venv\Scripts\activate          # Windows
 source venv/bin/activate       # Mac/Linux
