@@ -4,7 +4,7 @@
 
 **Real-time AI posture monitor that lives on your desktop**
 
-[![Build](https://github.com/yourusername/posturecoach/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/posturecoach/actions)
+[![Build](https://github.com/siyad01/postureCoach/actions/workflows/build.yml/badge.svg)](https://github.com/siyad01/postureCoach/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](#download)
 
@@ -96,8 +96,8 @@ Posture Analyzer (2D pixel geometry)
 ## Build from source
 
 ```bash
-git clone https://github.com/siyad01/posturecoach
-cd posturecoach
+git clone https://github.com/siyad01/postureCoach
+cd postureCoach
 python -m venv venv
 venv\Scripts\activate          # Windows
 source venv/bin/activate       # Mac/Linux
