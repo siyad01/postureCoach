@@ -1,0 +1,237 @@
+name: Build PostureCoach
+
+on:
+  push:
+    tags:
+      - 'v*'          # triggers on version tags like v1.0, v1.1
+  workflow_dispatch:  # allows manual trigger from GitHub UI
+
+jobs:
+
+  # ── Windows ──────────────────────────────────────────────
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mediapipe opencv-python numpy pillow
+          pip install customtkinter pyttsx3 win11toast
+          pip install rich pydantic pywin32
+          pip install pyinstaller
+
+      - name: Download MediaPipe model
+        run: |
+          curl -L -o pose_landmarker_full.task `
+            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task"
+
+      - name: Build Windows exe
+        run: |
+          pyinstaller `
+            --onefile `
+            --windowed `
+            --name "PostureCoach" `
+            --icon "icon.ico" `
+            --add-data "pose_landmarker_full.task;." `
+            --hidden-import "mediapipe" `
+            --hidden-import "mediapipe.tasks" `
+            --hidden-import "mediapipe.tasks.python" `
+            --hidden-import "mediapipe.tasks.python.vision" `
+            --hidden-import "pyttsx3.drivers" `
+            --hidden-import "pyttsx3.drivers.sapi5" `
+            --hidden-import "customtkinter" `
+            --hidden-import "win11toast" `
+            --hidden-import "PIL" `
+            --hidden-import "PIL.Image" `
+            --hidden-import "PIL.ImageTk" `
+            --exclude-module "matplotlib" `
+            --exclude-module "scipy" `
+            --exclude-module "pandas" `
+            app.py
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PostureCoach-Windows
+          path: dist/PostureCoach.exe
+
+  # ── macOS ─────────────────────────────────────────────────
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mediapipe opencv-python numpy pillow
+          pip install customtkinter pyttsx3
+          pip install rich pydantic
+          pip install pyinstaller
+
+      - name: Download MediaPipe model
+        run: |
+          curl -L -o pose_landmarker_full.task \
+            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task"
+
+      - name: Build macOS app
+        run: |
+          pyinstaller \
+            --onefile \
+            --windowed \
+            --name "PostureCoach" \
+            --add-data "pose_landmarker_full.task:." \
+            --hidden-import "mediapipe" \
+            --hidden-import "mediapipe.tasks" \
+            --hidden-import "mediapipe.tasks.python" \
+            --hidden-import "mediapipe.tasks.python.vision" \
+            --hidden-import "pyttsx3.drivers" \
+            --hidden-import "pyttsx3.drivers.nsss" \
+            --hidden-import "customtkinter" \
+            --hidden-import "PIL" \
+            --hidden-import "PIL.Image" \
+            --hidden-import "PIL.ImageTk" \
+            --exclude-module "matplotlib" \
+            --exclude-module "scipy" \
+            --exclude-module "pandas" \
+            app.py
+
+      - name: Zip macOS app
+        run: |
+          cd dist
+          zip -r PostureCoach-macOS.zip PostureCoach
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PostureCoach-macOS
+          path: dist/PostureCoach-macOS.zip
+
+  # ── Linux ─────────────────────────────────────────────────
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python 3.13
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            python3-tk \
+            libglib2.0-0 \
+            libsm6 \
+            libxext6 \
+            libxrender-dev \
+            libgl1-mesa-glx \
+            libgstreamer1.0-0 \
+            espeak \
+            libespeak-dev \
+            ffmpeg \
+            v4l-utils
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install mediapipe opencv-python numpy pillow
+          pip install customtkinter pyttsx3
+          pip install rich pydantic
+          pip install pyinstaller
+
+      - name: Download MediaPipe model
+        run: |
+          curl -L -o pose_landmarker_full.task \
+            "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task"
+
+      - name: Build Linux binary
+        run: |
+          pyinstaller \
+            --onefile \
+            --windowed \
+            --name "PostureCoach" \
+            --add-data "pose_landmarker_full.task:." \
+            --hidden-import "mediapipe" \
+            --hidden-import "mediapipe.tasks" \
+            --hidden-import "mediapipe.tasks.python" \
+            --hidden-import "mediapipe.tasks.python.vision" \
+            --hidden-import "pyttsx3.drivers" \
+            --hidden-import "pyttsx3.drivers.espeak" \
+            --hidden-import "customtkinter" \
+            --hidden-import "PIL" \
+            --hidden-import "PIL.Image" \
+            --hidden-import "PIL.ImageTk" \
+            --exclude-module "matplotlib" \
+            --exclude-module "scipy" \
+            --exclude-module "pandas" \
+            app.py
+
+      - name: Upload Linux artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: PostureCoach-Linux
+          path: dist/PostureCoach
+
+  # ── Create GitHub Release with all 3 binaries ─────────────
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+
+    steps:
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: "PostureCoach ${{ github.ref_name }}"
+          body: |
+            ## PostureCoach ${{ github.ref_name }}
+
+            Real-time AI posture monitor — works on Windows, macOS, and Linux.
+
+            ### Download for your platform
+            | Platform | File | Notes |
+            |----------|------|-------|
+            | Windows 10/11 | `PostureCoach.exe` | Just double-click |
+            | macOS | `PostureCoach-macOS.zip` | Unzip, then open |
+            | Linux | `PostureCoach` | `chmod +x PostureCoach && ./PostureCoach` |
+
+            ### Requirements
+            - Webcam
+            - Sit so your shoulders are visible in frame
+
+            ### What's new
+            - Real-time posture detection using MediaPipe
+            - AI voice alerts after 5 seconds of bad posture
+            - Windows/macOS/Linux native notifications
+            - Good posture encouragement every 5 minutes
+            - Session logging with full history
+
+          files: |
+            PostureCoach-Windows/PostureCoach.exe
+            PostureCoach-macOS/PostureCoach-macOS.zip
+            PostureCoach-Linux/PostureCoach
+          draft: false
+          prerelease: false
