@@ -4,7 +4,7 @@
 
 **Real-time AI posture monitor that lives on your desktop**
 
-[![Build](https://github.com/yourusername/posturecoach/actions/workflows/build.yml/badge.svg)](https://github.com/yourusername/posturecoach/actions)
+[![Build](https://github.com/siyad01/postureCoach/actions/workflows/build.yml/badge.svg)](https://github.com/siyad01/postureCoach/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 [![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](#download)
 
