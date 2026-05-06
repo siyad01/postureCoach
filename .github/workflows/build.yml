@@ -140,10 +140,10 @@ jobs:
             libsm6 \
             libxext6 \
             libxrender-dev \
-            libgl1-mesa-glx \
+            libgl1 \
             libgstreamer1.0-0 \
-            espeak \
-            libespeak-dev \
+            espeak-ng \
+            libespeak-ng-dev \
             ffmpeg \
             v4l-utils
 
