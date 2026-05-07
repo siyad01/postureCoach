@@ -1,158 +1,261 @@
 <div align="center">
 
-# 🧘 PostureCoach
+<img src="icon.png" width="80" height="80" alt="PostureCoach icon"/>
 
-**Real-time AI posture monitor that lives on your desktop**
+# PostureCoach
 
-[![Build](https://github.com/siyad01/postureCoach/actions/workflows/build.yml/badge.svg)](https://github.com/siyad01/postureCoach/actions)
-[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-blue)](#download)
+**AI-powered posture monitor that lives on your desktop**
+
+*Watches you work. Speaks up when you slouch. Cheers when you sit tall.*
+
+[![Build](https://github.com/siyad01/postureCoach/actions/workflows/build.yml/badge.svg)](https://github.com/siyad01/postureCoach/actions/workflows/build.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-22c55e.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.13-3b82f6.svg)](https://python.org)
+[![MediaPipe](https://img.shields.io/badge/MediaPipe-Tasks%20API-818cf8.svg)](https://developers.google.com/mediapipe)
+[![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS%20%7C%20Linux-0ea5e9.svg)](#-download)
+
+<br/>
+
+![PostureCoach Demo](https://raw.githubusercontent.com/siyad01/postureCoach/main/assets/demo.png)
 
 </div>
 
 ---
 
-## What it does
+## Why PostureCoach?
 
-PostureCoach watches you through your webcam while you work. When you slouch or drop your head for more than 5 seconds, it speaks to you in plain English and sends a notification. When your posture is great for 5 minutes straight, it congratulates you.
-
-It runs as a small floating window that stays on top of everything — just like your system clock.
+Most posture apps require you to wear something, buy hardware, or open a separate app. PostureCoach uses your existing webcam and runs as a **small floating window** that stays on top while you work — like a sticky note that actually does something.
 
 ```
-Good posture  →  score 90+  →  green overlay  →  silent
-Bad posture   →  5 seconds  →  voice alert + notification
-Good streak   →  5 minutes  →  voice encouragement
+Bad posture for 5s  →  Voice says "Your head is too far forward. Please push it back."
+                    →  Windows/macOS/Linux notification appears
+Good posture 5min   →  Voice says "Great posture. Keep it up."
+                    →  Pleasant chime plays
 ```
 
-## Download
+No cloud. No subscription. No data leaves your machine.
 
-| Platform | Download | Size |
-|----------|----------|------|
-| **Windows 10/11** | [PostureCoach.exe](../../releases/latest) | ~200MB |
-| **macOS** | [PostureCoach-macOS.zip](../../releases/latest) | ~200MB |
-| **Linux** | [PostureCoach](../../releases/latest) | ~200MB |
+---
 
-No Python needed. Just download and run.
+## ⬇️ Download
 
-## How to run
+| Platform | Download | Notes |
+|----------|----------|-------|
+| **Windows 10/11** | [PostureCoach.exe](../../releases/latest) | Double-click to run |
+| **macOS** | [PostureCoach-macOS.zip](../../releases/latest) | Unzip → right-click → Open |
+| **Linux** | [PostureCoach-Linux](../../releases/latest) | `chmod +x PostureCoach && ./PostureCoach` |
 
-**Windows:** Double-click `PostureCoach.exe`
+**No Python required.** Download and run — that's it.
 
-**macOS:**
-```bash
-unzip PostureCoach-macOS.zip
-open PostureCoach
-# If blocked: System Preferences → Security → Open Anyway
-```
+> **macOS note:** First launch may show a security warning. Go to  
+> System Settings → Privacy & Security → scroll down → click "Open Anyway"
 
-**Linux:**
-```bash
-chmod +x PostureCoach
-./PostureCoach
-# Install espeak if voice doesn't work: sudo apt install espeak
-```
-
-## Camera setup
-
-For best detection sit so your **full shoulders are visible** in the camera. The app automatically switches between:
-
-- **DESK mode** — detects from shoulders up (laptop use)
-- **FULL BODY mode** — detects full spine when hips are visible
+---
 
 ## How it works
 
 ```
-Webcam frame
-    │
-    ▼
-MediaPipe Pose Landmarker
-    │  33 body landmarks detected
-    ▼
-Posture Analyzer (2D pixel geometry)
-    │  Shoulder-width normalized measurements
-    │  ├── Neck angle (ear offset from shoulder)
-    │  ├── Shoulder tilt (Y difference)
-    │  └── Head height (nose vs shoulder line)
-    ▼
-8-frame smoother (eliminates jitter)
-    │
-    ├── Bad for 5s → Voice alert + OS notification
-    ├── Good for 5min → Voice encouragement
-    └── Session logger → logs/session_*.json
+Webcam frame (30fps)
+       │
+       ▼
+MediaPipe Pose Landmarker     ← 33 body landmarks in real time
+       │
+       ▼
+Posture Analyzer              ← shoulder-width normalized 2D geometry
+       │
+       ├── Neck angle         (ear horizontal offset from shoulder)
+       ├── Shoulder tilt      (Y difference, normalized)
+       └── Head height        (nose position vs shoulder line)
+       │
+       ▼
+8-frame smoother              ← eliminates jitter, stable readings
+       │
+       ├── Bad posture 5s  →  Voice alert + OS notification
+       ├── Good posture 5m →  Voice encouragement + chime
+       └── Session logger  →  logs/session_YYYYMMDD.json
 ```
 
-## Tech stack
+### Two detection modes — automatic switching
 
-| Library | Purpose |
-|---------|---------|
-| MediaPipe Tasks API | Pose landmark detection |
-| OpenCV | Webcam capture |
-| CustomTkinter | Modern dark UI |
-| pyttsx3 | AI voice alerts (local TTS) |
-| win11toast | Windows notifications |
-| NumPy | Angle calculations |
-| Pydantic | Config validation |
+| Mode | When | Detects |
+|------|------|---------|
+| **DESK** | Shoulders visible, hips not | Neck, forward head, shoulder tilt |
+| **FULL BODY** | Hips visible | Full spine, neck, shoulders, back curve |
+
+---
+
+## Camera setup
+
+Sit so your **full shoulders are visible** in the camera frame. The camera can be at eye level or slightly below — PostureCoach normalizes all measurements by shoulder width, so distance from the camera doesn't affect accuracy.
+
+```
+✅ Good setup          ❌ Too close
+┌──────────────┐       ┌──────────────┐
+│   [face]     │       │   [FACE]     │
+│  /shoulders\ │       │    only      │
+│   visible   │       │   face fits  │
+└──────────────┘       └──────────────┘
+```
+
+---
+
+## Features
+
+- **Real-time detection** — MediaPipe Tasks API, 2026 current, 30fps
+- **Shoulder-normalized math** — accurate regardless of camera distance
+- **AI voice alerts** — Windows TTS, dedicated thread, ~100ms latency
+- **Native notifications** — Windows toast / macOS / Linux notify-send
+- **Good posture encouragement** — voice praise every 5 minutes of good posture
+- **Floating dark UI** — 380×620, always on top, never blocks your work
+- **Session logging** — full JSON history, streaks, scores, alert count
+- **Zero cloud** — everything runs locally, no API keys, no internet needed
+
+---
+
+## Screenshot
+
+<div align="center">
+<img src="assets/screenshot.png" width="380" alt="PostureCoach UI"/>
+</div>
+
+---
 
 ## Build from source
 
 ```bash
+# Clone
 git clone https://github.com/siyad01/postureCoach
 cd postureCoach
+
+# Virtual environment
 python -m venv venv
 venv\Scripts\activate          # Windows
 source venv/bin/activate       # Mac/Linux
 
+# Install dependencies
 pip install -r requirements.txt
 
-# Download the pose model
+# Download pose model (~6MB)
 curl -L -o pose_landmarker_full.task \
   "https://storage.googleapis.com/mediapipe-models/pose_landmarker/pose_landmarker_full/float16/latest/pose_landmarker_full.task"
 
+# Run
 python app.py
 ```
 
-## Controls
+### CLI fallback (no GUI required)
+```bash
+python posturecoach.py
+```
 
-| Button | Action |
-|--------|--------|
-| Reset | Start a new session |
-| Skeleton | Toggle pose overlay |
-| Minimize | Send to taskbar |
+---
+
+## Project structure
+
+```
+postureCoach/
+├── app.py              ← CustomTkinter GUI (main entry point)
+├── camera.py           ← Background webcam + MediaPipe thread
+├── analyzer.py         ← Posture math (2D pixel geometry)
+├── overlay.py          ← Skeleton drawing on video frame
+├── notifications.py    ← Voice TTS + OS notifications
+├── logger.py           ← Session recording (JSON)
+├── config.py           ← All settings (thresholds, timing)
+├── posturecoach.py     ← CLI fallback (OpenCV window)
+└── .github/workflows/
+    └── build.yml       ← Auto-builds for Win/Mac/Linux
+```
+
+---
 
 ## Session data
 
-Every session is saved to `logs/session_YYYYMMDD_HHMMSS.json`:
+Every session saved to `logs/session_YYYYMMDD_HHMMSS.json`:
 
 ```json
 {
-  "session_id": "20260503_141055",
+  "session_id": "20260505_090000",
   "summary": {
-    "duration_minutes": 45.2,
-    "good_posture_percent": 78.4,
-    "average_score": 83,
-    "total_alerts": 3,
-    "longest_good_streak": 847.0
+    "date": "2026-05-05",
+    "duration_minutes": 47.3,
+    "good_posture_percent": 81.2,
+    "average_score": 86,
+    "total_alerts": 2,
+    "longest_good_streak": 923.0,
+    "longest_bad_streak": 38.0
   }
 }
 ```
 
+---
+
+## Configuration
+
+All settings in `config.py`:
+
+```python
+alert_delay_seconds:     int   = 5    # seconds before alert fires
+alert_repeat_seconds:    int   = 120  # min gap between alerts
+neck_angle_threshold:    float = 18.0 # sensitivity (lower = stricter)
+shoulder_tilt_threshold: float = 18.0
+back_angle_threshold:    float = 8.0
+```
+
+---
+
+## Tech stack
+
+| Library | Version | Purpose |
+|---------|---------|---------|
+| MediaPipe | Latest | Pose landmark detection |
+| OpenCV | 4.x | Webcam capture |
+| CustomTkinter | 5.x | Modern dark UI |
+| pyttsx3 | 2.x | Local TTS voice |
+| win11toast | Latest | Windows notifications |
+| NumPy | 1.x | Angle math |
+| Pydantic | 2.x | Config validation |
+| PyInstaller | 6.x | Packaging |
+
+---
+
+## Roadmap
+
+- [ ] Calibration mode — learn YOUR good posture baseline
+- [ ] Break reminders — stand up every hour
+- [ ] Weekly report — posture trends over time
+- [ ] Hotkey to pause/resume monitoring
+- [ ] Multiple camera support
+- [ ] Custom voice messages
+
+---
+
 ## Contributing
 
-Issues and PRs welcome. Built in Python — if you know Python you can contribute.
+Issues and PRs welcome. If you know Python, you can contribute.
 
 ```bash
 git checkout -b feature/your-feature
-# make changes
+# make changes, test with: python app.py
 git push origin feature/your-feature
-# open a PR
+# open a Pull Request
 ```
+
+**Good first issues:** custom voice messages, break reminders, calibration mode.
+
+---
 
 ## License
 
-MIT — free to use, modify, distribute.
+MIT — free to use, modify, and distribute.
 
 ---
 
 <div align="center">
-Built with MediaPipe · OpenCV · CustomTkinter · Runs 100% locally · No cloud · No data leaves your machine
+
+Built with MediaPipe · OpenCV · CustomTkinter
+
+**100% local · No cloud · No data collection · No subscription**
+
+*If this helps your posture, give it a ⭐*
+
 </div>
