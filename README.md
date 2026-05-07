@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="icon.png" width="80" height="80" alt="PostureCoach icon"/>
+<img src="icon.ico" width="80" height="80" alt="PostureCoach icon"/>
 
 # PostureCoach
 
